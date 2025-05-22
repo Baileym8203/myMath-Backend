@@ -2,12 +2,12 @@
   "name": "mymath-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "express.server.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "stop": "node stop"
+    "stop": "node server.js"
   },
   "keywords": [],
   "author": "",
