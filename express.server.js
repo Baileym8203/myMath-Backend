@@ -36,7 +36,7 @@ app.use('/api/uploads', express.static('public/uploads'));
 
 const corsOptions = {
     // allows origin requests from local host 3000
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://my-math-frontend.vercel.app"],
     // allows cookies and authorization headers etc
     credentials: true,
 };
@@ -51,7 +51,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 const openai = new OpenAI({
     apiKey: process.env.OPEN_AI_API_KEY,
@@ -300,7 +300,8 @@ app.post('/api/forgot-password', async (req, res) => {
         )
 
         // the link to the reset password webpage
-        const resetlink = `http://localhost:3000/authentication/resetpassword?token=${resetToken}`;
+        const resetlink = `${process.env.FRONTEND_URL}/authentication/resetpassword?token=${resetToken}`;
+        ;
 
         // will use resend to send a email to reset the users password
         const send = await resend.emails.send({
@@ -433,7 +434,7 @@ app.get('/api/courses', authenticateToken, async (req, res) => {
 })
 
 // will be responsible for updating the username and email using middleware
-app.put('/api//user/update', authenticateToken, async (req, res) => {
+app.put('/api/user/update', authenticateToken, async (req, res) => {
     try {
         // grabs the users info from the request body
         const { name, email, password } = req.body;
