@@ -11,7 +11,19 @@ import multer from 'multer';
 import path from 'path';
 import OpenAI from "openai";
 
-//UPDATE THIS FOR BACKEND DEPLOYMENT VIA RAILWAY OR OTHERS ETC.....
+// will allow env file data to come to the server!
+dotenv.config();
+const app = express();
+
+const corsOptions = {
+    // allows origin requests from local host 3000
+    origin: ["http://localhost:3000", "https://my-math-frontend.vercel.app", "https://my-math-frontend-pa6p5031v-baileym8203s-projects.vercel.app"],
+    // allows cookies and authorization headers etc
+    credentials: true,
+};
+
+// allows use of cors
+app.use(cors(corsOptions));
 
 // multer will save files at the designated file path!
 const storage = multer.diskStorage({
@@ -27,27 +39,15 @@ const storage = multer.diskStorage({
 // creates image upload middleware!
 export const upload = multer({ storage });
 
-// will allow env file data to come to the server!
-dotenv.config();
-const app = express();
-
 // will serve the uploaded files statically! as an image source!
 app.use('/api/uploads', express.static('public/uploads'));
 
-const corsOptions = {
-    // allows origin requests from local host 3000
-    origin: ["http://localhost:3000", `${process.env.FRONTEND_URL}`, `${process.env.FRONTEND_VERCEL_PREVIEW_URL}`],
-    // allows cookies and authorization headers etc
-    credentials: true,
-};
 
 // will inisialize the use of resend now! for pass word resets!
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // uses middleware!
 app.use(express.json());
-// allows use of cors
-app.use(cors(corsOptions));
 app.use(cookieParser());
 
 
