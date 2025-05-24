@@ -36,7 +36,7 @@ app.use('/api/uploads', express.static('public/uploads'));
 
 const corsOptions = {
     // allows origin requests from local host 3000
-    origin: ["http://localhost:3000", "https://my-math-frontend.vercel.app"],
+    origin: ["http://localhost:3000", `${process.env.FRONTEND_URL}`],
     // allows cookies and authorization headers etc
     credentials: true,
 };
