@@ -11,21 +11,35 @@ import multer from 'multer';
 import path from 'path';
 import OpenAI from "openai";
 
-// CORS issues WITH cross origin requests need to be fixed!!!!
 
 // will allow env file data to come to the server!
 dotenv.config();
 const app = express();
 
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://my-math-frontend.vercel.app',
+    'https://my-math-frontend-pa6p5031v-baileym8203s-projects.vercel.app'
+];
+
 const corsOptions = {
-    // allows origin requests from local host 3000
-    origin: ["http://localhost:3000", "https://my-math-frontend.vercel.app", "https://my-math-frontend-pa6p5031v-baileym8203s-projects.vercel.app"],
-    // allows cookies and authorization headers etc
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS: ' + origin));
+        }
+    },
     credentials: true,
 };
 
+
 // allows use of cors
 app.use(cors(corsOptions));
+
+// uses middleware!
+app.use(express.json());
+app.use(cookieParser());
 
 // multer will save files at the designated file path!
 const storage = multer.diskStorage({
@@ -48,24 +62,15 @@ app.use('/api/uploads', express.static('public/uploads'));
 // will inisialize the use of resend now! for pass word resets!
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// uses middleware!
-app.use(express.json());
-app.use(cookieParser());
-
-
 const PORT = process.env.PORT || 5000;
 
 const openai = new OpenAI({
     apiKey: process.env.OPEN_AI_API_KEY,
 });
 
-// ADD GPT IMPLEMENTATION IN STUDY CHAT!
-// ADD REDIRECT AUTOMATICALLY FROM "/" to "/dashboard" not using "/" yet....
-
 // will take the users entered messages and send them to Open AI!
 app.post('/api/course-learner/ai-chat', authenticateToken, async (req, res) => {
     const { message, selectedCourse } = req.body;
-    const userId = req.user.id;
 
     if (!message) {
         return res.status(400).json({ message: "Message is required!" });
