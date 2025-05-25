@@ -11,6 +11,8 @@ import multer from 'multer';
 import path from 'path';
 import OpenAI from "openai";
 
+// CORS issues WITH cross origin requests need to be fixed!!!!
+
 // will allow env file data to come to the server!
 dotenv.config();
 const app = express();
