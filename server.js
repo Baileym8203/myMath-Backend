@@ -27,7 +27,7 @@ const corsOptions = {
             "https://my-math-frontend.vercel.app",
         ];
 
-        const vercelRegex = /^https:\/\/([a-zA-Z0-9-]+)-my-math-frontend\.vercel\.app$/;
+        const vercelRegex = /^https:\/\/([a-zA-Z0-9-]+-)?my-math-frontend(-[a-zA-Z0-9-]+)?(-baileym8203s-projects)?\.vercel\.app$/;
 
         if (
             !origin ||
