@@ -161,6 +161,7 @@ app.post('/api/login', async (req, res) => {
                 // ensures http only
                 httpOnly: true,
                 secure: true,
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 // sets cookie to expire in 24 hours
                 maxAge: 60 * 60 * 24000,
             });
