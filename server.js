@@ -11,27 +11,40 @@ import multer from 'multer';
 import path from 'path';
 import OpenAI from "openai";
 
+// fix local development!! MAJOR ISSUES WITH REDIRECT AND LOGIN ETC!
+
 
 // will allow env file data to come to the server!
 dotenv.config();
 const app = express();
 
+
+// CORS implementation with the domains allowed!
 const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        const allowedOrigins = ["https://my-math-frontend.vercel.app"];
-        const vercelRegex = /^https:\/\/([a-zA-Z0-9-]+)\.vercel\.app$/;
+        const allowedOrigins = [
+            "http://localhost:3000",
+            "https://my-math-frontend.vercel.app",
+        ];
 
-        if (allowedOrigins.includes(origin) || vercelRegex.test(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
+        const vercelRegex = /^https:\/\/([a-zA-Z0-9-]+)-my-math-frontend\.vercel\.app$/;
+
+        if (
+            !origin ||
+            allowedOrigins.includes(origin) ||
+            vercelRegex.test(origin)
+        ) {
+            return callback(null, true);
         }
+
+        // Otherwise, block it
+        return callback(new Error(`CORS: Origin '${origin}' not allowed`));
     },
     credentials: true,
+    optionsSuccessStatus: 200,
 };
 
-// allows use of cors
+
 app.use(cors(corsOptions));
 
 // uses middleware!
@@ -160,7 +173,7 @@ app.post('/api/login', async (req, res) => {
             res.cookie('token', token, {
                 // ensures http only
                 httpOnly: true,
-                secure: true,
+                secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 // sets cookie to expire in 24 hours
                 maxAge: 60 * 60 * 24000,
@@ -201,7 +214,7 @@ app.post('/api/signup', async (req, res) => {
             res.cookie('token', token, {
                 // ensures http only
                 httpOnly: true,
-                secure: true,
+                secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 // sets cookie to expire in 24 hours
                 maxAge: 60 * 60 * 24000,
@@ -224,7 +237,7 @@ app.post('/api/logout', authenticateToken, async (req, res) => {
         // removes the cookie by making the expiration date the past!
         res.clearCookie('token', {
             httpOnly: true,
-            secure: true,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
         });
         res.status(200).json({ message: 'Logged out successfully!' })
