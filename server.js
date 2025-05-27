@@ -107,12 +107,6 @@ app.post('/api/course-learner/ai-chat', authenticateToken, async (req, res) => {
     }
 });
 
-
-// basic endpoint that will send the user to the dahboard 
-app.post('/api/redirect/dashboard', authenticateToken, async (req, res) => {
-    router.push('/dashboard');
-})
-
 // will get the users for testing purposes ONLY!!!
 app.get('/users', async (req, res) => { // TEST THIS WITH POSTMAN!
     // this will try and catch!
@@ -167,7 +161,7 @@ app.post('/api/login', async (req, res) => {
                 // ensures http only
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'lax',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 // sets cookie to expire in 24 hours
                 maxAge: 60 * 60 * 24000,
             });

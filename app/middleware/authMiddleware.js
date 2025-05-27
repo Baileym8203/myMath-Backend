@@ -12,7 +12,7 @@ export function authenticateToken(req, res, next) {
         // access is denied
         return res.status(401).json({ message: 'No token, authorization denied' });
     }
-    
+
     // verifys the token accordingly 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         // if an error is procted 
