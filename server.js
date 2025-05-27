@@ -201,9 +201,9 @@ app.post('/api/signup', async (req, res) => {
             res.cookie('token', token, {
                 // ensures http only
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'lax',
-                // calculated to expire after 24 hours!
+                secure: true,
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                // sets cookie to expire in 24 hours
                 maxAge: 60 * 60 * 24000,
             });
             // success
@@ -221,51 +221,11 @@ app.post('/api/signup', async (req, res) => {
 // this will allow the user to be logged out by removing the cookie!
 app.post('/api/logout', authenticateToken, async (req, res) => {
     try {
-        // will get the last login time and the total time spent overall from the current user that was logged in!
-        const [result] = await db.promise().query('SELECT last_login_time, total_time_spent FROM users WHERE id = ?', [req.user.id]);
-
-        // gets the time from the last login time
-        const lastloginTime = new Date(result[0].last_login_time);
-        // gets the time that is now!
-        const now = new Date();
-
-        // will subtract what time it is now from the login time! all over 1000
-        const sessionDuration = Math.floor((now - lastloginTime) / 1000);
-
-        // will add this to the overall total time spent to keep track of how long the user has been studying!
-        const newTotal = result[0].total_time_spent + sessionDuration;
-
-        // will await to update the total time to the database as well as makes the last login time null now so it resets at next login!
-        await db.promise().query('UPDATE users SET total_time_spent = ?, last_login_time = NULL WHERE id = ?', [newTotal, req.user.id]);
-
-        const [achievements] = await db.promise().query('SELECT * FROM achievements');
-
-        for (const achievement of achievements) {
-            const { name, required_seconds } = achievement;
-
-            // If user qualifies for this achievement
-            if (newTotal >= required_seconds) {
-                // Check if user already has it
-                const [existing] = await db.promise().query(
-                    'SELECT * FROM user_achievements WHERE user_id = ? AND achievement_name = ?',
-                    [req.user.id, name]
-                );
-
-                // If not, insert it
-                if (existing.length === 0) {
-                    await db.promise().query(
-                        'INSERT INTO user_achievements (user_id, achievement_name) VALUES (?, ?)',
-                        [req.user.id, name]
-                    );
-                }
-            }
-        }
         // removes the cookie by making the expiration date the past!
         res.clearCookie('token', {
             httpOnly: true,
-            // will change based on development environment but will allow cookies either way
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            secure: true,
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
         });
         res.status(200).json({ message: 'Logged out successfully!' })
     } catch (err) {
