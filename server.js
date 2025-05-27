@@ -162,6 +162,7 @@ app.post('/api/login', async (req, res) => {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'none',
+                partitioned: true,
                 // sets cookie to expire in 24 hours
                 maxAge: 60 * 60 * 24000,
             });
