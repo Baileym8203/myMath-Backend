@@ -7,8 +7,6 @@ import jwt from 'jsonwebtoken';
 import { authenticateToken } from './app/middleware/authMiddleware.js';
 import cookieParser from "cookie-parser";
 import { Resend } from 'resend';
-import multer from 'multer';
-import path from 'path';
 import OpenAI from "openai";
 
 // fix local development!! MAJOR ISSUES WITH REDIRECT AND LOGIN ETC!
@@ -51,19 +49,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-// multer will save files at the designated file path!
-const storage = multer.diskStorage({
-    destination: './public/uploads/profile/',
-    filename: (req, file, cb) => {
-        // sets the uploaded images filename to the users ID and file extension
-        // this overides the image everytime there is a new upload!
-        cb(null, `${req.user.id}${path.extname(file.originalname)}`);
-    }
-});
-
-
-// creates image upload middleware!
-export const upload = multer({ storage });
 
 // will serve the uploaded files statically! as an image source!
 app.use('/api/uploads', express.static('public/uploads'));
@@ -361,23 +346,6 @@ app.delete('/api/users/course', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'error with course delete!' });
     }
 })
-
-// will be responsible for saving the users profile image to the backend using multer!
-app.post('/api/user/profile-image', authenticateToken, upload.single('image'), async (req, res) => {
-    try {
-        // constructs the URL to access the image publicly
-        const imagePath = `/uploads/profile/${req.file.filename}`;
-        // awaits updating the specific users profile image at the database
-        await db.promise().query('UPDATE users SET profile_image = ? WHERE id = ?', [imagePath, req.user.id]);
-        // sends a success response!
-        res.status(200).json({ message: 'Profile image uploaded successfully', imagePath });
-        // catches any errors along the way!
-    } catch (err) {
-        console.error('Error uploading image:', err);
-        res.status(500).json({ message: 'Failed to upload image' });
-    }
-});
-
 // Will get the users courses they enrolled in!
 app.get('/api/user/courses', authenticateToken, async (req, res) => {
     const userID = req.user.id;
